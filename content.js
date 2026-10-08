@@ -1,5 +1,5 @@
-// Runs on YouTube. The moment a video opens: get its captions, ask for sponsor
-// timestamps (cached -> SponsorBlock -> Gemini), then auto-skip during playback.
+// Runs on YouTube. When a video opens, it gets captions, asks for sponsor
+// timestamps (cached -> SponsorBlock -> local caption matching), then auto-skips.
 let segments = [];
 let currentId = null;
 
@@ -107,7 +107,14 @@ async function analyze(id, force = false) {
     log(`Captions fetched for ${id}:`, transcript ? `${transcript.length} characters` : "None");
 
     const channelName = getChannelName();
-    const res = await chrome.runtime.sendMessage({ type: "analyze", videoId: id, transcript, channelName, force });
+    const res = await chrome.runtime.sendMessage({
+      type: "analyze",
+      videoId: id,
+      transcript,
+      channelName,
+      force,
+      showBadgeCount: userSettings.showBadgeCount
+    });
     if (id !== currentId) return; // user navigated away mid-scan
     segments = res?.segments || [];
     log(`Detection result (${res?.source}):`, segments);
@@ -141,14 +148,16 @@ function isContextValid() {
 }
 
 // Cache settings in memory safely
-let userSettings = { autoSkip: true, playSound: false };
+let userSettings = { autoSkip: true, playSound: false, showToast: true, showBadgeCount: true };
 if (isContextValid()) {
   try {
-    chrome.storage.sync.get({ autoSkip: true, playSound: false }, s => { if (s) userSettings = s; });
+    chrome.storage.local.get(userSettings, s => { if (s) userSettings = s; });
     chrome.storage.onChanged.addListener((changes, area) => {
-      if (area === "sync") {
+      if (area === "local") {
         if (changes.autoSkip) userSettings.autoSkip = changes.autoSkip.newValue;
         if (changes.playSound) userSettings.playSound = changes.playSound.newValue;
+        if (changes.showToast) userSettings.showToast = changes.showToast.newValue;
+        if (changes.showBadgeCount) userSettings.showBadgeCount = changes.showBadgeCount.newValue;
       }
     });
   } catch {}
@@ -174,6 +183,7 @@ const tickInterval = setInterval(() => {
 
 let badge, badgeTimer;
 function showBadge(text, ms) {
+  if (!userSettings.showToast) return;
   if (!badge) {
     badge = document.createElement("div");
     badge.style.cssText = "position:fixed;bottom:24px;left:24px;z-index:99999;background:#111d;color:#fff;padding:8px 12px;border-radius:8px;font:13px system-ui";
