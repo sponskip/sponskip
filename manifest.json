@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Sponskip",
-  "version": "1.0.0",
-  "description": "Auto-skip in-video sponsor reads and disguised ads on YouTube.",
+  "version": "1.0.1",
+  "description": "Skip SponsorBlock sponsor segments and locally detected sponsor reads on YouTube.",
   "permissions": ["storage"],
   "icons": {
     "16": "icons/icon16.png",

@@ -1,63 +1,48 @@
-# ⏭️ Sponskip
+# Sponskip
 
-> **Auto-skip in-video sponsor reads and disguised ads on YouTube.**
+Skip known sponsor and self-promotion segments on YouTube, with local caption-based detection as a fallback.
 
-[![License: Source-Available](https://img.shields.io/badge/License-Source--Available-red.svg)](LICENSE)
-[![Manifest V3](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-brightgreen.svg)](manifest.json)
+Sponskip is a Chrome extension for YouTube. It checks public SponsorBlock data first, then can inspect available captions locally when no segment is available. Detection is not perfect; review the limitations before installing.
 
-Most YouTube ad blockers only stop pre-roll and mid-roll popups. But on podcasts, creator shows, and tech reviews, creators embed **sponsored pitch reads directly into the video**—often disguised as organic stories before revealing a promo code or sponsor link.
+## Install
 
-**Sponskip** detects these segments the moment a video opens and jumps past them automatically.
+Chrome Web Store availability will be linked here after the listing is approved. Until then, download the latest release ZIP or load this directory unpacked:
 
----
+1. Download or clone this repository.
+2. Open `chrome://extensions` in Chrome.
+3. Enable **Developer mode**.
+4. Choose **Load unpacked** and select this repository directory.
 
-## ⚡ How It Works
+## How it works
 
-Sponskip uses a high-speed, multi-tier detection pipeline designed to run with **zero latency and zero API cost**:
+1. Sponskip requests public SponsorBlock timestamps for `sponsor` and `selfpromo` segments.
+2. If no public segment is available and captions are available, Sponskip checks caption text locally for sponsor-read patterns.
+3. With auto-skip enabled, Sponskip seeks the YouTube player past detected segments.
 
-1. **Instant Crowdsource Check:** Queries the open SponsorBlock database. If someone has already tagged the video, it skips with zero compute.
-2. **Instant Transcript Parsing:** If untagged, Sponskip reads YouTube's captions (JSON3 and XML timedtext) directly from your active browser session in under 200ms without transcribing raw audio.
-3. **Smart Two-Way Segment Detector:**
-   - **Forward Scan:** Catches explicit creator transitions (`"today's sponsor"`, `"seamless segue to..."`, `"thanks to X for sponsoring"`).
-   - **Backward Reverse Trace:** Detects disguised ads (where a podcaster tells an organic story that ends in an offer code, B2B demo request, or sponsor URL) and traces backwards to clip the entire pitch.
-4. **Seamless Player Seek:** Advances `video.currentTime` directly inside the YouTube player without fake keyboard controls.
-5. **Optional AI Fallback:** Support for Google Gemini 1.5 Flash structured output for ambiguous videos (optional, brings your own key).
+## Limitations
 
----
+SponsorBlock coverage varies by video. Caption-based detection is heuristic: it can miss sponsor reads and may occasionally identify a non-sponsor segment incorrectly. Sponskip only operates on supported YouTube watch pages.
 
-## 🛠️ Installation (Developer / Unpacked)
+## Privacy
 
-1. Clone or download this repository:
-   ```bash
-   git clone https://github.com/blakeb056/sponskip.git
-   ```
-2. Open Google Chrome and navigate to:
-   ```
-   chrome://extensions
-   ```
-3. Enable **Developer mode** in the top right.
-4. Click **Load unpacked** in the top left and select the `sponskip` folder.
-5. Pin **Sponskip** to your toolbar!
+Read the full [privacy disclosure](docs/PRIVACY.md). Sponskip has no analytics or Sponskip-operated backend. It requests public SponsorBlock segment data for the current video and stores controls and statistics in your browser.
 
----
+## Support
 
-## 🖥️ Extension UI
+Use [GitHub Issues](https://github.com/sponskip/sponskip/issues) for bugs and feature requests. Please do not include private or unlisted video URLs in reports.
 
-- **Active Badge Counter:** Shows the number of detected sponsor reads directly on the extension icon (just like uBlock Origin).
-- **Popup Control Panel:**
-  - View exact start and end timestamps.
-  - See which detection source found the ad (SponsorBlock, Keywords, or Gemini).
-  - One-click **Force Re-scan** button.
+## Contributing
 
----
+See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-## 🔒 Privacy
+## Security
 
-- **100% Client-Side:** All keyword pattern matching executes locally in your browser.
-- **Zero Personal Data:** Sponskip never collects, tracks, or transmits browsing history or user data.
+See [SECURITY.md](SECURITY.md) for responsible vulnerability reporting.
 
----
+## Third-party services
 
-## 📄 License
+Sponskip uses the public [SponsorBlock API](https://sponsor.ajay.app/) for crowd-sourced segment timestamps. Sponskip is not affiliated with SponsorBlock, YouTube, or Google.
 
-Source-Available / All Rights Reserved © [Blake Burford](https://github.com/blakeb056). See [LICENSE](LICENSE) for details. Free for personal inspection and use; redistribution or re-publishing to extension stores is strictly prohibited.
+## License
+
+Sponskip is source-available under its [proprietary non-commercial license](LICENSE). It is not open source.
