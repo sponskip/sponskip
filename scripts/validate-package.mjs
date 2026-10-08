@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 const root = resolve(process.argv[2] || process.cwd());
 const allowed = new Set([
   "manifest.json", "background.js", "content.js", "detector.js", "popup.html", "popup.js",
-  "options.html", "options.js", "icons", "LICENSE", "README.md", "docs", "scripts", "test"
+  "options.html", "options.js", "icons", "LICENSE", "README.md", "CONTRIBUTING.md", "SECURITY.md", "docs", "scripts", "test"
 ]);
 
 const manifest = JSON.parse(await readFile(resolve(root, "manifest.json"), "utf8"));
@@ -21,7 +21,7 @@ for (const size of ["16", "48", "128"]) {
 
 const entries = await readdir(root, { withFileTypes: true });
 const unexpected = entries
-  .filter((entry) => !entry.name.startsWith(".") && !allowed.has(entry.name) && entry.name !== "scripts" && entry.name !== "test" && entry.name !== "docs")
+  .filter((entry) => !entry.name.startsWith(".") && !entry.name.match(/^sponskip-v[\d.]+\.zip$/) && !allowed.has(entry.name))
   .map((entry) => entry.name);
 if (unexpected.length > 0) throw new Error(`unexpected repository entries: ${unexpected.join(", ")}`);
 
